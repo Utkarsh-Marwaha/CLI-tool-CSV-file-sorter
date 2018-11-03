@@ -13,7 +13,7 @@ class CSVFile {
     //constants for sortDirection
     final public int SortASC = 1;
     final public int SortDESC = -1;
-     public String[] colNames;
+    public String[] colNames;
     private int sortDirection = SortASC; //1 for ASC, -1 for DESC
     String fileName;
 
@@ -97,8 +97,48 @@ class CSVFile {
         //comparator by specific col
         Comparator<String[]> comp = new Comparator<String[]>(){
             public int compare(String[] a, String[] b){
-                //reverse result if DESC (sortDirection = -1)
-                return sortDirection * a[colIndex].compareTo(b[colIndex]);
+
+
+                if (!(a[colIndex].length()==0 || b[colIndex].length()==0)){
+
+                    String reg_Integer = "^\\d+$";
+                    String reg_Float   = "[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)";
+
+                    boolean a_is_Integer = a[colIndex].matches(reg_Integer);
+                    boolean b_is_Integer = b[colIndex].matches(reg_Integer);
+
+                    boolean a_is_Float = a[colIndex].matches(reg_Float);
+                    boolean b_is_Float = b[colIndex].matches(reg_Float);
+
+                    boolean isInteger = a_is_Integer && b_is_Integer;
+
+                    if (!isInteger){
+
+                        boolean isFloat = (a_is_Integer && b_is_Float) ||
+                                (a_is_Float && b_is_Integer) || (a_is_Float && b_is_Float);
+
+                        if (!isFloat){
+                            // not an integer and not a float but a string
+                            return sortDirection * a[colIndex].compareTo(b[colIndex]);
+                        } else {
+                            // not an integer but a float
+                            return sortDirection * Float.valueOf(a[colIndex]).compareTo(Float.valueOf(b[colIndex]));
+                        }
+
+                    } else {
+                        // not a float and not a string but an integer
+                        return sortDirection * Integer.valueOf(a[colIndex]).compareTo(Integer.valueOf(b[colIndex]));
+                    }
+                }
+
+                if (a[colIndex].length()==0){
+                    return -1;
+                } else if (b[colIndex].length()==0){
+                    return 1;
+                }
+
+                return 0;
+
             }
         };
 
