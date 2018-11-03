@@ -1,4 +1,6 @@
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 class CSVFile {
@@ -98,43 +100,59 @@ class CSVFile {
         Comparator<String[]> comp = new Comparator<String[]>(){
             public int compare(String[] a, String[] b){
 
+                if (!(a[colIndex].length()==0 || b[colIndex].length()==0)) {
 
-                if (!(a[colIndex].length()==0 || b[colIndex].length()==0)){
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yy");
+                    try {
+                        sdf.parse(a[colIndex]);
+                    } catch (ParseException e) {
 
-                    String reg_Integer = "^\\d+$";
-                    String reg_Float   = "[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)";
+                        String reg_Integer = "^\\d+$";
+                        String reg_Float = "[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)";
 
-                    boolean a_is_Integer = a[colIndex].matches(reg_Integer);
-                    boolean b_is_Integer = b[colIndex].matches(reg_Integer);
+                        boolean a_is_Integer = a[colIndex].matches(reg_Integer);
+                        boolean b_is_Integer = b[colIndex].matches(reg_Integer);
 
-                    boolean a_is_Float = a[colIndex].matches(reg_Float);
-                    boolean b_is_Float = b[colIndex].matches(reg_Float);
+                        boolean a_is_Float = a[colIndex].matches(reg_Float);
+                        boolean b_is_Float = b[colIndex].matches(reg_Float);
 
-                    boolean isInteger = a_is_Integer && b_is_Integer;
+                        boolean isInteger = a_is_Integer && b_is_Integer;
 
-                    if (!isInteger){
+                        if (!isInteger) {
 
-                        boolean isFloat = (a_is_Integer && b_is_Float) ||
-                                (a_is_Float && b_is_Integer) || (a_is_Float && b_is_Float);
+                            boolean isFloat = (a_is_Integer && b_is_Float) ||
+                                    (a_is_Float && b_is_Integer) || (a_is_Float && b_is_Float);
 
-                        if (!isFloat){
-                            // not an integer and not a float but a string
-                            return sortDirection * a[colIndex].compareTo(b[colIndex]);
+                            if (!isFloat) {
+                                // not an integer and not a float but a string
+                                return sortDirection * a[colIndex].compareTo(b[colIndex]);
+                            } else {
+                                // not an integer but a float
+                                return sortDirection * Float.valueOf(a[colIndex]).compareTo(Float.valueOf(b[colIndex]));
+                            }
+
                         } else {
-                            // not an integer but a float
-                            return sortDirection * Float.valueOf(a[colIndex]).compareTo(Float.valueOf(b[colIndex]));
+                            // not a float and not a string but an integer
+                            return sortDirection * Integer.valueOf(a[colIndex]).compareTo(Integer.valueOf(b[colIndex]));
                         }
-
-                    } else {
-                        // not a float and not a string but an integer
-                        return sortDirection * Integer.valueOf(a[colIndex]).compareTo(Integer.valueOf(b[colIndex]));
                     }
+
+                    // After reaching here, we are sure that the two strings are of type Date
+                    // but the compiler doesn't trust us therefore we enclose the parse operation in a try-catch block
+                    try {
+                        Date date1 = sdf.parse(a[colIndex]);
+                        Date date2 = sdf.parse(b[colIndex]);
+                        return sortDirection * date1.compareTo(date2);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
                 }
 
                 if (a[colIndex].length()==0){
-                    return -1;
-                } else if (b[colIndex].length()==0){
                     return 1;
+                } else if (b[colIndex].length()==0){
+                    return -1;
                 }
 
                 return 0;
