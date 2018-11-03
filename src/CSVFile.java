@@ -2,30 +2,57 @@ import java.io.*;
 import java.util.*;
 
 class CSVFile {
+// /students/u6146791/Desktop/input-data (1).csv
 
+    /**
+     * I'm treating each individual row (record) as a string and the overall CSV
+     * file is stored as a list of multiple records i.e an a List of (array of strings)
+     */
     private List<String[]> records;
 
     //constants for sortDirection
     final public int SortASC = 1;
     final public int SortDESC = -1;
+     public String[] colNames;
     private int sortDirection = SortASC; //1 for ASC, -1 for DESC
     String fileName;
 
+    /**
+     * The total number of columns in the CSV file
+     */
     private int colsCount=0;
 
-    public CSVFile(String file) throws IOException{
-        records = new ArrayList<String[]>();
-        fileName = file;
-        try(BufferedReader in = new BufferedReader(new FileReader(file)))
-        {
+    /**
+     *
+     * @param filePath path to the csv file which is to be parsed
+     * @throws IOException
+     */
+    public CSVFile(String filePath) throws IOException{
+
+        // instantiate the list of (array of strings) which would hold all the records of the csv file
+        records = new ArrayList<>();
+        fileName = filePath;
+        try(BufferedReader in = new BufferedReader(new FileReader(filePath))) {
             String ln;
             while( (ln = in.readLine()) !=null) {
                 colsCount = ln.split(",").length; //FIXME
-                records.add(ln.split("\n"));
+                records.add(ln.split(","));
+            }
+
+            /*
+             * This removes the row containing the column names so that we don't sort them accidentally
+             */
+            if (records.size() >= 1){
+                colNames = records.get(0);
+                records.remove(0);
             }
         }
+
     }
 
+    /**
+     * method to print all the records of the CSV file
+     */
     public void print(){
         for(String[] arr : records){
             for (String s:arr) {
@@ -35,9 +62,15 @@ class CSVFile {
         }
     }
 
+    /**
+     * method to write the records to the same csv file
+     * @throws IOException
+     */
     public void save() throws IOException{
-        try(BufferedWriter out = new BufferedWriter(new FileWriter(fileName)))
-        {
+        try(BufferedWriter out = new BufferedWriter(new FileWriter("/students/u6146791/Desktop/1.csv"))) {
+            if (colNames != null){
+                records.add(0,colNames);
+            }
             for(String[] arr : records){
                 for (String s:arr) {
                     out.write(s+"\t");
@@ -47,17 +80,25 @@ class CSVFile {
         }
     }
 
+    /**
+     * this method just lets us set the desired sorting direction
+     * @param direction the direction in which we want to sort the records of the csv file
+     *                  direction could be ascending or descending
+     */
     public void setSortDirection(int direction){
         sortDirection = direction;
     }
 
-    public void sortByCol(final int i){
-
+    /**
+     *
+     * @param colIndex index of the column based on which we need to sort the records of the csv file
+     */
+    public void sortByCol(final int colIndex){
         //comparator by specific col
         Comparator<String[]> comp = new Comparator<String[]>(){
             public int compare(String[] a, String[] b){
                 //reverse result if DESC (sortDirection = -1)
-                return sortDirection * a[i].compareTo(b[i]);
+                return sortDirection * a[colIndex].compareTo(b[colIndex]);
             }
         };
 
@@ -105,7 +146,7 @@ class SortCSV {
             if (res.trim().length() != 0){
                 sortCol = Integer.parseInt(res);
                 if ((sortCol<1) || (sortCol >maxcol)){
-                    System.out.println("Incorect column number");
+                    System.out.println("Incorrect column number");
                     System.exit(0);
                 }
             }

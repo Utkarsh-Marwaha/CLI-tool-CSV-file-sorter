@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DiversityCareers.iml" filepath="$PROJECT_DIR$/DiversityCareers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CLI-tool-CSV-file-sorter.iml" filepath="$PROJECT_DIR$/CLI-tool-CSV-file-sorter.iml" />
     </modules>
   </component>
 </project>
