@@ -69,13 +69,13 @@ class CSVFile {
      * @throws IOException
      */
     public void save() throws IOException{
-        try(BufferedWriter out = new BufferedWriter(new FileWriter("/students/u6146791/Desktop/1.csv"))) {
+        try(BufferedWriter out = new BufferedWriter(new FileWriter("C:\\Users\\utkar\\Desktop\\ANU\\Course\\5. July-Nov 2018\\interview\\1.csv"))) {
             if (colNames != null){
                 records.add(0,colNames);
             }
             for(String[] arr : records){
                 for (String s:arr) {
-                    out.write(s+"\t");
+                    out.write(s+",");
                 }
                 out.write("\n");
             }
@@ -102,7 +102,7 @@ class CSVFile {
 
                 if (!(a[colIndex].length()==0 || b[colIndex].length()==0)) {
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/mm/yy");
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
                     try {
                         sdf.parse(a[colIndex]);
                     } catch (ParseException e) {
@@ -179,7 +179,7 @@ class SortCSV {
 
         in = new BufferedReader(new InputStreamReader(System.in));
         if (args.length<1){
-            //promt user for input file
+            //prompt user for input file
             System.out.println("Enter path to .CSV file: ");
             fileName = in.readLine();
         } else
