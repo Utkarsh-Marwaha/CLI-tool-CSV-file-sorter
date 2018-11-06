@@ -102,6 +102,7 @@ class CSVFile {
             public int compare(String[] a, String[] b){
 
                 final int colIndex = colIndices[0];
+                final int secIndex = colIndices[1];
 
                 if (!(a[colIndex].length()==0 || b[colIndex].length()==0)) {
 
@@ -128,15 +129,28 @@ class CSVFile {
 
                             if (!isFloat) {
                                 // not an integer and not a float but a string
-                                return sortDirection * a[colIndex].compareTo(b[colIndex]);
+                                int result = sortDirection * a[colIndex].compareTo(b[colIndex]);
+
+                                if (result == 0){
+                                    return sortDirection * a[secIndex].compareTo(b[secIndex]);
+                                } else return result;
+
                             } else {
                                 // not an integer but a float
-                                return sortDirection * Float.valueOf(a[colIndex]).compareTo(Float.valueOf(b[colIndex]));
+                                int result = sortDirection * Float.valueOf(a[colIndex]).compareTo(Float.valueOf(b[colIndex]));
+
+                                if (result == 0){
+                                    return sortDirection * Float.valueOf(a[secIndex]).compareTo(Float.valueOf(b[secIndex]));
+                                } else return result;
                             }
 
                         } else {
                             // not a float and not a string but an integer
-                            return sortDirection * Integer.valueOf(a[colIndex]).compareTo(Integer.valueOf(b[colIndex]));
+                            int result =  sortDirection * Integer.valueOf(a[colIndex]).compareTo(Integer.valueOf(b[colIndex]));
+
+                            if (result == 0){
+                                return sortDirection * Integer.valueOf(a[secIndex]).compareTo(Integer.valueOf(b[secIndex]));
+                            } else return result;
                         }
                     }
 
