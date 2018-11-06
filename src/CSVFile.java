@@ -18,6 +18,7 @@ class CSVFile {
     public String[] colNames;
     private int sortDirection = SortASC; //1 for ASC, -1 for DESC
     String fileName;
+    private final String SEPARATOR = ",";
 
     /**
      * The total number of columns in the CSV file
@@ -37,8 +38,8 @@ class CSVFile {
         try(BufferedReader in = new BufferedReader(new FileReader(filePath))) {
             String ln;
             while( (ln = in.readLine()) !=null) {
-                colsCount = ln.split(",").length; //FIXME
-                records.add(ln.split(","));
+                colsCount = ln.split(SEPARATOR).length;
+                records.add(ln.split(SEPARATOR));
             }
 
             /*
@@ -75,7 +76,7 @@ class CSVFile {
             }
             for(String[] arr : records){
                 for (String s:arr) {
-                    out.write(s+",");
+                    out.write(s+SEPARATOR);
                 }
                 out.write("\n");
             }
@@ -93,12 +94,14 @@ class CSVFile {
 
     /**
      *
-     * @param colIndex index of the column based on which we need to sort the records of the csv file
+     *  @param colIndices of the column based on which we need to sort the records of the csv file
      */
-    public void sortByCol(final int colIndex){
+    public void sortByCol(int [] colIndices){
         //comparator by specific col
         Comparator<String[]> comp = new Comparator<String[]>(){
             public int compare(String[] a, String[] b){
+
+                final int colIndex = colIndices[0];
 
                 if (!(a[colIndex].length()==0 || b[colIndex].length()==0)) {
 
@@ -182,8 +185,7 @@ class SortCSV {
             //prompt user for input file
             System.out.println("Enter path to .CSV file: ");
             fileName = in.readLine();
-        } else
-        {
+        } else {
             fileName = args[0];
         }
 
@@ -195,33 +197,34 @@ class SortCSV {
 
             int maxcol = csv.getColsCount();
             System.out.println(
-                    String.format("Select sorting column (1-%d): [1] ",maxcol));
+                    String.format("Select the columns for sorting (comma separated) (1-%d): [1] ",maxcol));
 
-            int sortCol = 1;
-            String res =in.readLine();
+            int sortCol;
+            String res = in.readLine();
+            String [] colIndices = res.split(",");
+            int i = 0;
+            int [] cols = new int[colIndices.length];
+            for (String index : colIndices){
 
-            //if non-default
-            if (res.trim().length() != 0){
-                sortCol = Integer.parseInt(res);
+                sortCol = Integer.parseInt(index);
                 if ((sortCol<1) || (sortCol >maxcol)){
-                    System.out.println("Incorrect column number");
+                    System.out.println("Incorrect column number found");
                     System.exit(0);
                 }
+                cols[i++] = sortCol - 1;
             }
 
+
             String sortDirection = "1";
-            System.out.println("Select sort direction");
-            System.out.println("1. ASC");
-            System.out.println("2. DESC");
-            System.out.print("[1]:");
+            System.out.println("Select sort direction(1. ASC/2. DESC)[default: ASC]");
             sortDirection = in.readLine();
-            if (sortDirection == "2")
+            if (sortDirection.equals("2"))
                 csv.setSortDirection(csv.SortDESC);
 
-            csv.sortByCol(sortCol-1); //-1 map from 1:n to 0:n-1
+            csv.sortByCol(cols); //-1 map from 1:n to 0:n-1
             csv.save();
             System.out.println("Sorted and saved to file");
-            System.out.println("Would you like to see result before exit? (yes/no)[no]");
+            System.out.println("Would you like to see result before exit? (yes/no)[default: no]");
             if (in.readLine().trim().equals("yes"))
                 csv.print();
         } catch(IOException e) {
